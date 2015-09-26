@@ -1,12 +1,12 @@
 
 type regular_file_t = {
-  path: string; (** File path *)
+  filepath: string; (** File path *)
   checksum: string; (** md5 sum currently *)
   size: int; (** file size *)
 }
 
 and folder_t = {
-  path: string; (** Folder path *)
+  folderpath: string; (** Folder path *)
   files: file_t list; (** Sub files *)
   count: int; (** amount of files *)
 }
@@ -19,4 +19,7 @@ and file_t =
 let rec count_files = function
   | Folder(f) -> f.count
   | RegularFile(f) -> 1
+and space_used = function
+  | Folder(f) -> List.fold_left (fun sum file -> sum + (space_used file)) 0 f.files
+  | RegularFile(f) -> f.size
 ;;

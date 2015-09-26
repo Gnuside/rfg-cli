@@ -26,7 +26,7 @@ let new_name ?length:(l=6) ?base_name:(b="folder-") ?end_name:(e="") () =
    * - Actual number of sub-files
  * Warning: All the limitations are approximatives, not strict
  *)
-let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
+let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=5242880) ?(max_amount=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
   print_endline (Printf.sprintf
     "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
     mif maf max_size fn p);
@@ -48,14 +48,14 @@ let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=524288
     if file_to_create < 13 then begin
       (* We create a file *)
       print_endline "Creating a file";
-      res := !res @ [
-        FileGenerator.create ~max_size ~path:(folder_path) ()
-      ];
+      let file = FileGenerator.create ~max_size ~path:(folder_path) () in
+      let size = space_used file in
+      res := !res @ [ file ];
       incr current_files
     end else if file_to_create < 20 then begin
       (* We create a folder *)
       print_endline "Creating a folder";
-      let folder = create ~min_files:(mif - !current_files) ~max_files:(maf - !current_files) ~max_size ~path:(folder_path) () in
+      let folder = create ~min_files:(mif - !current_files) ~max_files:(Random.int (maf - !current_files)) ~max_size ~path:(folder_path) () in
       res := !res @ [ folder ];
       current_files := !current_files + count_files folder (* we don't count folder themself *)
     end else begin
@@ -64,7 +64,7 @@ let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=524288
       stop := true
     end
   done;
-  Folder {path = folder_path; files = !res; count = !current_files }
+  Folder {folderpath = folder_path; files = !res; count = !current_files }
 ;;
 
 let rec print_file_t ?level:(level=0) = function
@@ -74,7 +74,7 @@ and print_file_t_folder level (f:folder_t) =
   let space_level = String.make (level*2) ' ' in
   let print_indent () = print_string space_level in
   print_indent (); print_endline "Folder";
-  print_indent (); print_endline ("path: " ^ f.path);
+  print_indent (); print_endline ("path: " ^ f.folderpath);
   print_indent (); print_endline (Printf.sprintf "count: %d" f.count);
   print_indent (); print_endline "files : [";
   List.iter (fun e -> print_file_t ~level:(level+1) e) f.files;

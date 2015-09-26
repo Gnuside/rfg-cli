@@ -45,7 +45,7 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   done;
   close_out oc;
   RegularFile{
-    path = file_path;
+    filepath = file_path;
     size = s;
     checksum = Digest.file file_path (* FIXME: fucking not optimal. We just had the data in hand please Digest at the same time *)
   }
@@ -55,7 +55,7 @@ let print_file_t_file level (f:regular_file_t) =
   let space_level = String.make (level*2) ' ' in
   let print_indent () = print_string space_level in
   print_indent (); print_endline "File";
-  print_indent (); print_endline ("path: " ^ f.path);
+  print_indent (); print_endline ("path: " ^ f.filepath);
   print_indent (); print_endline (Printf.sprintf "size: %d KB" f.size);
   print_indent (); print_endline ("checksum: " ^ (hex_string f.checksum))
 ;;
