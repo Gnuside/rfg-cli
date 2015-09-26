@@ -56,7 +56,7 @@ let print_file_t_file level (f:regular_file_t) =
   let print_indent () = print_string space_level in
   print_indent (); print_endline "File";
   print_indent (); print_endline ("path: " ^ f.path);
-  print_indent (); print_endline (Printf.sprintf "size: %d" f.size);
-  print_indent (); print_endline ("checksum: " ^ f.checksum)
+  print_indent (); print_endline (Printf.sprintf "size: %d KB" f.size);
+  print_indent (); print_endline ("checksum: " ^ (hex_string f.checksum))
 ;;
 

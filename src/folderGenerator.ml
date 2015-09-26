@@ -26,7 +26,7 @@ let new_name ?length:(l=6) ?base_name:(b="folder-") ?end_name:(e="") () =
    * - Actual number of sub-files
  * Warning: All the limitations are approximatives, not strict
  *)
-let rec create ?min_files:(mif=2) ?max_files:(maf=20) ?max_size:(max_size=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
+let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
   print_endline (Printf.sprintf
     "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
     mif maf max_size fn p);

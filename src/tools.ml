@@ -10,3 +10,5 @@ let random_b64_string l =
   done; (* Make the random bytes *)
   encode ~alphabet:(uri_safe_alphabet) (Bytes.to_string res)
 ;;
+
+let hex_string s = match Hex.of_string s with `Hex (s) -> s;;
