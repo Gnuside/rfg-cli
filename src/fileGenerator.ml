@@ -23,10 +23,10 @@ let new_name ?length:(l=8) ?base_name:(b="file-") ?end_name:(e="") () =
    * - file size
  *)
 let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_name ()) ?path:(p=".") () =
-  print_endline (Printf.sprintf
+  (*print_endline (Printf.sprintf
     "FileGenerator.create min_size:%d max_size:%d filename:%s path:%s"
-    mis mas fn p);
-  (match size with None -> print_endline "size:None" | Some(s) -> print_endline (Printf.sprintf "size:%d" s));
+    mis mas fn p);*)
+  (*(match size with None -> print_endline "size:None" | Some(s) -> print_endline (Printf.sprintf "size:%d" s));*)
   let buf_size = 1024
   and file_path = (p ^ "/" ^ fn) in
   let buffer = Bytes.create buf_size
@@ -34,6 +34,7 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   and oc = open_out_bin file_path
   and s = match size with None -> mis + (Random.int (mas-mis)) | Some(s) -> s
   in
+  Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
     for i = 0 to buf_size - 1 do
       Bytes.set buffer i (char_of_int (Random.int 256))
@@ -41,7 +42,8 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
     (* TODO: optimize for speed by cumulating small buffers into a big one,
      * Currently we just let the filesystem and flush system to optimize for us *)
     incr current_size;
-    output_bytes oc buffer
+    output_bytes oc buffer;
+    Tools.refresh_status file_path s 1 "file";
   done;
   close_out oc;
   RegularFile{
