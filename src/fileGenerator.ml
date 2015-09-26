@@ -23,8 +23,12 @@ let new_name ?length:(l=8) ?base_name:(b="file-") ?end_name:(e="") () =
    * - file size
  *)
 let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_name ()) ?path:(p=".") () =
+  print_endline (Printf.sprintf
+    "FileGenerator.create min_size:%d max_size:%d filename:%s path:%s"
+    mis mas fn p);
+  (match size with None -> print_endline "size:None" | Some(s) -> print_endline (Printf.sprintf "size:%d" s));
   let buf_size = 1024
-  and file_path = (p ^ fn) in
+  and file_path = (p ^ "/" ^ fn) in
   let buffer = Bytes.create buf_size
   and current_size = ref 0
   and oc = open_out_bin file_path

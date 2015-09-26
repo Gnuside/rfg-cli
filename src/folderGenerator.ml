@@ -26,7 +26,10 @@ let new_name ?length:(l=6) ?base_name:(b="folder-") ?end_name:(e="") () =
    * - Actual number of sub-files
  * Warning: All the limitations are approximatives, not strict
  *)
-let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
+let rec create ?min_files:(mif=2) ?max_files:(maf=20) ?max_size:(max_size=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
+  print_endline (Printf.sprintf
+    "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
+    mif maf max_size fn p);
   let buf_size = 1024
   and folder_path = (p ^ "/" ^ fn)
   and current_files = ref 0
@@ -34,26 +37,30 @@ let rec create ?min_files:(mif=2) ?max_files:(maf=50) ?max_size:(max_size=524288
   and res = ref [] (* files created *)
   in
   Unix.mkdir folder_path 0o750;
-  while !stop || !current_files < maf do
+  while (not !stop) && !current_files < maf do
+    print_endline (Printf.sprintf "Made %d files over %d" !current_files maf);
     let file_to_create =
       if !current_files > mif then
         Random.int 21 (* If we are not > min_files we don't allow 20 value which prevent us to stop *)
       else Random.int 20
     in
+    print_endline (Printf.sprintf "file_to_create: %d" file_to_create);
     if file_to_create < 13 then begin
       (* We create a file *)
+      print_endline "Creating a file";
       res := !res @ [
-        create ~max_size ~path:(folder_path) ()
+        FileGenerator.create ~max_size ~path:(folder_path) ()
       ];
       incr current_files
     end else if file_to_create < 20 then begin
       (* We create a folder *)
-      res := !res @ [
-        create ~min_files:(mif - !current_files) ~max_files:(maf - !current_files) ()
-      ];
-      incr current_files
+      print_endline "Creating a folder";
+      let folder = create ~min_files:(mif - !current_files) ~max_files:(maf - !current_files) ~max_size ~path:(folder_path) () in
+      res := !res @ [ folder ];
+      current_files := !current_files + count_files folder (* we don't count folder themself *)
     end else begin
       (* We stop looping *)
+      print_endline "Stoping";
       stop := true
     end
   done;

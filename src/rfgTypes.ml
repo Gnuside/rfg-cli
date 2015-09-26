@@ -14,3 +14,9 @@ and folder_t = {
 and file_t =
   RegularFile of regular_file_t
   | Folder of folder_t
+;;
+
+let rec count_files = function
+  | Folder(f) -> f.count
+  | RegularFile(f) -> 1
+;;
