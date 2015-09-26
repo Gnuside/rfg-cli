@@ -1,10 +1,11 @@
 "src": include
 <**/*.ml> or <**/*.mli> or <**/*.mlpack> or <**/*.ml.depends>: ocaml
-<**/*.byte>: ocaml, byte, program
+<**/*.byte>: ocaml, byte, program, package(base64), package(unix)
 <**/*.odoc>: ocaml, doc
-<**/*.native>: ocaml, native, program
+<**/*.native>: ocaml, native, program, package(base64), package(unix)
 <**/*.cma>: ocaml, byte, library
 <**/*.cmxa>: ocaml, native, library
 <**/*.cmo>: ocaml, byte
 <**/*.cmi>: ocaml, byte, native
 <**/*.cmx>: ocaml, native
+<src/tools.ml>: package(base64)

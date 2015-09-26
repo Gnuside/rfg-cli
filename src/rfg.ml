@@ -1,5 +1,7 @@
 open Random
 open Arg
+open RfgTypes
+open FolderGenerator
 
 let seed = ref None;;
 
@@ -24,5 +26,6 @@ let _ =
   );
   print_endline (
     Printf.sprintf "Here is the first random number (from 0 to 100) got: %d" (Random.int 100)
-  )
+  );
+  print_file_t (FolderGenerator.create ~max_size:500 ())
 ;;
