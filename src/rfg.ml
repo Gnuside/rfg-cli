@@ -9,7 +9,7 @@ let seed = ref None
 and file_max_size = ref 500
 and amount_of_data = ref (1024)
 and number_of_files = ref 1000
-and folder_path = ref "."
+and folder_desc = ref ""
 and command = ref ""
 ;;
 
@@ -17,7 +17,7 @@ let args = [
   ("--nbfiles", Set_int(number_of_files), "Set total amount of files created (folders are not included).");
   ("--max-file-size", Set_int(file_max_size), "Set the maximum file size in KB (by default 500 KB).");
   ("--amount-data", Set_int(amount_of_data), "Set the maximum space used by the generator in MB (by default 1 GB).");
-  ("--folder-path", Set_string(folder_path), "Set folder path to analyse with check command (by default '.' meaning you must be inside a generated folder)");
+  ("--folder-desc", Set_string(folder_desc), "Set folder desc file to analyse with check command");
   ("--seed", Int(fun s -> seed := Some(s)), "Set initial seed for Random function (by default use /dev/urandom if available).");
 ];;
 
@@ -36,14 +36,20 @@ let usage_msg =
 Arg.parse args anon_fun usage_msg;;
 
 let check () =
-  print_endline "TODO"
+  print_endline "TODO";
+  (if !folder_desc = "" then
+    failwith "Please specify folder-desc file.");
+  let folder_desc_ic = open_in_bin !folder_desc in
+  let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t) in
+  print_file_t folder
 and create () =
+  let max_amount = !amount_of_data * 1024 in
   (match !seed with
   None -> Random.self_init ()
   | Some(s) -> Random.init s
   );
-  Tools.init_status !number_of_files !amount_of_data !file_max_size;
-  let folder = FolderGenerator.create ~max_files:!number_of_files ~max_amount:(!amount_of_data * 1024) ~max_size:!file_max_size () in
+  Tools.init_status !number_of_files max_amount !file_max_size;
+  let folder = FolderGenerator.create ~max_files:!number_of_files ~max_amount ~max_size:!file_max_size () in
   let folder_description = (RfgTypes.path folder) ^ ".bin.desc"
   and checksum_resume = (RfgTypes.path folder) ^ ".checksum" in
   let fd_o = open_out_bin folder_description
