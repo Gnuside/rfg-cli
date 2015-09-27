@@ -1,5 +1,8 @@
 (** This is an utility module *)
 
+
+(* Random facility *)
+
 open B64
 
 (** Get a base64 random string *)
@@ -12,6 +15,16 @@ let random_b64_string l =
 ;;
 
 let hex_string s = match Hex.of_string s with `Hex (s) -> s;;
+
+(** Give a random number between imin and imax, except that it will take the max
+ * between 1 and max of imin and (imax - imin) *)
+let get_random imin imax =
+  let i = max 1 (max imin (imax - imin)) in
+  print_endline (Printf.sprintf "get_random: %d to %d (%d)" imin imax i);
+  let res = imin + (Random.int i) in
+  print_endline (Printf.sprintf "get_random: got %d" res);
+  res
+;;
 
 
 (* Status facility *)

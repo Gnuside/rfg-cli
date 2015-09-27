@@ -32,12 +32,12 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   let buffer = Bytes.create buf_size
   and current_size = ref 0
   and oc = open_out_bin file_path
-  and s = match size with None -> mis + (Random.int (max 1 (mas-mis))) | Some(s) -> s
+  and s = match size with None -> get_random mis (max 1 (mas-mis)) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
     for i = 0 to buf_size - 1 do
-      Bytes.set buffer i (char_of_int (Random.int 256))
+      Bytes.set buffer i (char_of_int (get_random 0 256))
     done;
     (* TODO: optimize for speed by cumulating small buffers into a big one,
      * Currently we just let the filesystem and flush system to optimize for us *)

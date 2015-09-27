@@ -27,7 +27,7 @@ let new_name ?length:(l=6) ?base_name:(b="folder-") ?end_name:(e="") () =
    * - Actual number of sub-files
  * Warning: All the limitations are approximatives, not strict
  *)
-let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(max_size=5242880) ?(max_amount=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
+let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?(max_size=5242880) ?(max_amount=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
   (*print_endline (Printf.sprintf
     "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
     mif maf max_size fn p);*)
@@ -44,17 +44,17 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(max_size=5242
     (*print_endline (Printf.sprintf "Made %d files over %d" !current_files maf);*)
     let file_to_create =
       if !current_files > mif then
-        Random.int 21 (* If we are not > min_files we don't allow 20 value which prevent us to stop *)
+        get_random 0 21 (* If we are not > min_files we don't allow 20 value which prevent us to stop *)
       else if (!current_files < maf && !amount_data < max_amount) then
-        Random.int 20
+        get_random 0 20
       else
-        Random.int 14 (* only select files *)
+        get_random 0 14 (* only select files *)
     in
     (*print_endline (Printf.sprintf "file_to_create: %d" file_to_create);*)
     if file_to_create < 13 then begin
       (* We create a file *)
       (*print_endline "Creating a file";*)
-      let file = FileGenerator.create ~max_size:(Random.int (max 1 (min max_size (max_amount - !amount_data)))) ~path:(folder_path) () in
+      let file = FileGenerator.create ~min_size ~max_size:(get_random 0 (min max_size (max_amount - !amount_data))) ~path:(folder_path) () in
       let size = space_used file in
       res := !res @ [ file ];
       amount_data := !amount_data + size;
@@ -63,8 +63,8 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(max_size=5242
       (* We create a folder *)
       (*print_endline "Creating a folder";*)
       let folder = create ~depth:(depth+1) ~max_size ~min_files:(mif - !current_files)
-        ~max_files:(Random.int (max 1 (maf - !current_files)))
-        ~max_amount:(Random.int (max 1 (max_amount - !amount_data)))
+        ~max_files:(get_random 0 (maf - !current_files))
+        ~max_amount:(get_random 0 (max_amount - !amount_data))
         ~path:(folder_path) ()
       in
       let size = space_used folder
