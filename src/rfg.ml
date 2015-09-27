@@ -3,7 +3,7 @@ open Arg
 open RfgTypes
 open FolderGenerator
 
-let version = "0.1.0";;
+let version = "0.9.0";;
 
 let seed = ref None
 and file_max_size = ref 500
