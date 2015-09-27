@@ -53,7 +53,8 @@ let refresh_status path cfm diff ?cnf ?cmf ?depth kind =
   | "file" -> begin
     (if !cur_path != path then begin
       incr global_cur_files;
-      cur_path := path
+      cur_path := path;
+      cur_file_amount := 0
     end);
     global_cur_amount := !global_cur_amount + diff;
     cur_file_amount := !cur_file_amount + diff;

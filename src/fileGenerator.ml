@@ -32,7 +32,7 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   let buffer = Bytes.create buf_size
   and current_size = ref 0
   and oc = open_out_bin file_path
-  and s = match size with None -> mis + (Random.int (mas-mis)) | Some(s) -> s
+  and s = match size with None -> mis + (Random.int (max 1 (mas-mis))) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do

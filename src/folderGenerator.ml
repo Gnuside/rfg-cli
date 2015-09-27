@@ -45,13 +45,16 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(max_size=5242
     let file_to_create =
       if !current_files > mif then
         Random.int 21 (* If we are not > min_files we don't allow 20 value which prevent us to stop *)
-      else Random.int 20
+      else if (!current_files < maf && !amount_data < max_amount) then
+        Random.int 20
+      else
+        Random.int 14 (* only select files *)
     in
     (*print_endline (Printf.sprintf "file_to_create: %d" file_to_create);*)
     if file_to_create < 13 then begin
       (* We create a file *)
       (*print_endline "Creating a file";*)
-      let file = FileGenerator.create ~max_size ~path:(folder_path) () in
+      let file = FileGenerator.create ~max_size:(Random.int (max 1 (min max_size (max_amount - !amount_data)))) ~path:(folder_path) () in
       let size = space_used file in
       res := !res @ [ file ];
       amount_data := !amount_data + size;
@@ -77,7 +80,9 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(max_size=5242
     Tools.refresh_status ~depth folder_path max_amount !amount_data ~cnf:!current_files ~cmf:maf "folder";
   done;
   Tools.refresh_status ~depth folder_path max_amount !amount_data ~cnf:!current_files ~cmf:maf "folder";
-  Folder {folderpath = folder_path; files = !res; count = !current_files }
+  let folder = Folder {folderpath = folder_path; files = !res; count = !current_files } in
+  (*Printf.printf "\nFolder (%d) created: %d/%d KB inside with %d/%d files\n" depth (space_used folder) max_amount !current_files maf;*)
+  folder
 ;;
 
 let rec print_file_t ?level:(level=0) = function
