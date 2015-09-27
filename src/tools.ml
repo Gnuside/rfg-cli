@@ -26,6 +26,14 @@ let get_random imin imax =
   res
 ;;
 
+let get_bytes_random len =
+  let buffer = Bytes.create len in
+  for i = 0 to len - 1 do
+    Bytes.set buffer i (char_of_int (Random.int 256))
+  done;
+  buffer
+;;
+
 
 (* Status facility *)
 open Printf

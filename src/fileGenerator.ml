@@ -29,16 +29,13 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   (*(match size with None -> print_endline "size:None" | Some(s) -> print_endline (Printf.sprintf "size:%d" s));*)
   let buf_size = 1024
   and file_path = (p ^ "/" ^ fn) in
-  let buffer = Bytes.create buf_size
-  and current_size = ref 0
+  let current_size = ref 0
   and oc = open_out_bin file_path
   and s = match size with None -> get_random mis (max 1 (mas-mis)) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
-    for i = 0 to buf_size - 1 do
-      Bytes.set buffer i (char_of_int (get_random 0 256))
-    done;
+    let buffer = get_bytes_random buf_size in
     (* TODO: optimize for speed by cumulating small buffers into a big one,
      * Currently we just let the filesystem and flush system to optimize for us *)
     incr current_size;

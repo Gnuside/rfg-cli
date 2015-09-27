@@ -31,8 +31,7 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
   (*print_endline (Printf.sprintf
     "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
     mif maf max_size fn p);*)
-  let buf_size = 1024
-  and folder_path = (p ^ "/" ^ fn)
+  let folder_path = (p ^ "/" ^ fn)
   and current_files = ref 0
   and stop = ref false
   and res = ref [] (* files created *)
