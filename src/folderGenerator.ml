@@ -42,7 +42,7 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
   while (not !stop) && (!current_files < maf || !amount_data < max_amount) do
     (*print_endline (Printf.sprintf "Made %d files over %d" !current_files maf);*)
     let file_to_create =
-      if !current_files > mif then
+      if !current_files > mif && depth != 0 then
         get_random 0 21 (* If we are not > min_files we don't allow 20 value which prevent us to stop *)
       else if (!current_files < maf && !amount_data < max_amount) then
         get_random 0 20
