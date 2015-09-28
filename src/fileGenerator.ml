@@ -36,24 +36,25 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
-    let buffer = Bytes.create (512*buf_size) in
-    for i = 0 to min (s - !current_size) 511 do
+    let buffer = Bytes.create (512*buf_size)
+    and s_used = min (s - !current_size) 512 in
+    for i = 0 to (s_used - 1) do
       let tmp_buf = get_bytes_random buf_size in
-      incr current_size;
       Bytes.blit tmp_buf 0 buffer (i*buf_size) buf_size
     done;
+    current_size := !current_size + s_used;
     (* output to the file and the md5 channel to md5sum process *)
-    output_bytes oc buffer;
-    output_bytes md5_oc buffer;
+    output oc buffer 0 (s_used*buf_size);
+    output md5_oc buffer 0 (s_used*buf_size);
     flush md5_oc; (* don't forget to flush, else it is kept in the pipe *)
-    Tools.refresh_status file_path s 1 "file";
+    Tools.refresh_status file_path s s_used "file";
   done;
   close_out oc;
   (* close input of md5sum to make it finish its job *)
   close_out md5_oc;
   (* get the displayed md5 sum (only the first line normally... *)
   let md5_string = input_line md5_ic in
-  close_in md5_ic;
+  ignore (Unix.close_process (md5_ic, md5_oc));
   RegularFile{
     filepath = file_path;
     size = s;
