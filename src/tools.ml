@@ -32,15 +32,22 @@ let get_random imin imax =
   res
 ;;
 
+(* This is a fake random, because generating a real random serie of bytes is too slow. *)
+let random_buffer_size = 5*1024*1024;;
+let random_buffer = Bytes.create random_buffer_size;;
+let _ =
+  for i = 0 to random_buffer_size - 1 do
+    Bytes.set random_buffer i (char_of_int (Random.int 256))
+  done
+
+;;
+
 let get_bytes_random len =
-  let buffer = Bytes.create len in
-  (match random_ic with
-  | None ->
-    for i = 0 to len - 1 do
-      Bytes.set buffer i (char_of_int (Random.int 256))
-    done
-  | Some(ic) ->
-    really_input ic buffer 0 len
+  let rand_i = Random.int random_buffer_size
+  and buffer = Bytes.create len in
+  Bytes.blit random_buffer rand_i buffer 0 (min len (random_buffer_size - rand_i));
+  (if len > (random_buffer_size - rand_i) then
+    Bytes.blit random_buffer 0 buffer (random_buffer_size - rand_i) (len - (random_buffer_size - rand_i))
   );
   buffer
 ;;
