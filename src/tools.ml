@@ -3,7 +3,7 @@
 
 (* Random facility *)
 
-let random_ic = if Sys.file_exists "/dev/urandom" then Some(open_in_bin "/dev/urandom") else None;;
+let random_ic = (*if Sys.file_exists "/dev/urandom" then Some(open_in_bin "/dev/urandom") else *)None;;
 
 open B64
 
