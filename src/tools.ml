@@ -127,8 +127,8 @@ let display_status () =
   Mutex.lock mutex;
   let elapsed_time = (Unix.gettimeofday ()) -. !thread_start
   and path_shorten = status_shorten_path !cur_path in
-  let rate = (float_of_int !global_cur_amount) /. elapsed_time in
-  printf "\r%.03fs (%3.1f KB/s) -%3d- %s" elapsed_time rate !cur_depth path_shorten;
+  let rate = ((float_of_int !global_cur_amount) /. elapsed_time) /. 1024. in
+  printf "\r%.03fs (%3.1f MB/s) -%3d- %s" elapsed_time rate !cur_depth path_shorten;
   (match !cur_kind with
   | "file" -> printf " - file %11d / %d KB" !cur_file_amount !cur_file_max
   | "folder" -> printf " - folder %11d / %d KB | %6d / %d files"
