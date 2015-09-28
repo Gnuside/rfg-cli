@@ -21,7 +21,11 @@ let hex_string s = match Hex.of_string s with `Hex (s) -> s;;
 let get_random imin imax =
   let i = max 1 (max imin (imax - imin)) in
   print_endline (Printf.sprintf "get_random: %d to %d (%d)" imin imax i);
-  let res = imin + (Random.int i) in
+  let res = imin + (
+    if i > 1073741823 then
+      Int64.to_int (Random.int64 (Int64.of_int i))
+    else Random.int i
+      ) in
   print_endline (Printf.sprintf "get_random: got %d" res);
   res
 ;;

@@ -29,8 +29,8 @@ let new_name ?length:(l=6) ?base_name:(b="folder-") ?end_name:(e="") () =
  *)
 let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?(max_size=5242880) ?(max_amount=5242880) ?foldername:(fn=new_name ()) ?path:(p=".") () =
   (*print_endline (Printf.sprintf
-    "FolderGenerator.create min_files:%d max_file:%d max_size:%d foldername:%s path:%s"
-    mif maf max_size fn p);*)
+    "FolderGenerator.create min_files:%d max_file:%d min_size:%d max_size:%d foldername:%s path:%s"
+    mif maf min_size max_size fn p);*)
   let folder_path = (p ^ "/" ^ fn)
   and current_files = ref 0
   and stop = ref false
@@ -61,7 +61,7 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
     end else if file_to_create < 20 then begin
       (* We create a folder *)
       (*print_endline "Creating a folder";*)
-      let folder = create ~depth:(depth+1) ~max_size ~min_files:(mif - !current_files)
+      let folder = create ~depth:(depth+1) ~min_size ~max_size ~min_files:(mif - !current_files)
         ~max_files:(get_random 0 (maf - !current_files))
         ~max_amount:(get_random 0 (max_amount - !amount_data))
         ~path:(folder_path) ()
