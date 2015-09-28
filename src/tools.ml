@@ -3,6 +3,8 @@
 
 (* Random facility *)
 
+let random_ic = if Sys.file_exists "/dev/urandom" then Some(open_in_bin "/dev/urandom") else None;;
+
 open B64
 
 (** Get a base64 random string *)
@@ -20,21 +22,26 @@ let hex_string s = match Hex.of_string s with `Hex (s) -> s;;
  * between 1 and max of imin and (imax - imin) *)
 let get_random imin imax =
   let i = max 1 (max imin (imax - imin)) in
-  print_endline (Printf.sprintf "get_random: %d to %d (%d)" imin imax i);
+  (*print_endline (Printf.sprintf "get_random: %d to %d (%d)" imin imax i);*)
   let res = imin + (
     if i > 1073741823 then
       Int64.to_int (Random.int64 (Int64.of_int i))
     else Random.int i
       ) in
-  print_endline (Printf.sprintf "get_random: got %d" res);
+  (*print_endline (Printf.sprintf "get_random: got %d" res);*)
   res
 ;;
 
 let get_bytes_random len =
   let buffer = Bytes.create len in
-  for i = 0 to len - 1 do
-    Bytes.set buffer i (char_of_int (Random.int 256))
-  done;
+  (match random_ic with
+  | None ->
+    for i = 0 to len - 1 do
+      Bytes.set buffer i (char_of_int (Random.int 256))
+    done
+  | Some(ic) ->
+    really_input ic buffer 0 len
+  );
   buffer
 ;;
 

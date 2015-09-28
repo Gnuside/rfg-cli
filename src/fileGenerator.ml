@@ -31,22 +31,33 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   and file_path = (p ^ "/" ^ fn) in
   let current_size = ref 0
   and oc = open_out_bin file_path
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum"
   and s = match size with None -> get_random mis (max 1 (mas-mis)) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
-    let buffer = get_bytes_random buf_size in
-    (* TODO: optimize for speed by cumulating small buffers into a big one,
-     * Currently we just let the filesystem and flush system to optimize for us *)
-    incr current_size;
+    let buffer = Bytes.create (512*buf_size) in
+    for i = 0 to min (s - !current_size) 511 do
+      let tmp_buf = get_bytes_random buf_size in
+      incr current_size;
+      Bytes.blit tmp_buf 0 buffer (i*buf_size) buf_size
+    done;
+    (* output to the file and the md5 channel to md5sum process *)
     output_bytes oc buffer;
+    output_bytes md5_oc buffer;
+    flush md5_oc; (* don't forget to flush, else it is kept in the pipe *)
     Tools.refresh_status file_path s 1 "file";
   done;
   close_out oc;
+  (* close input of md5sum to make it finish its job *)
+  close_out md5_oc;
+  (* get the displayed md5 sum (only the first line normally... *)
+  let md5_string = input_line md5_ic in
+  close_in md5_ic;
   RegularFile{
     filepath = file_path;
     size = s;
-    checksum = Digest.file file_path (* FIXME: fucking not optimal. We just had the data in hand please Digest at the same time *)
+    checksum = String.sub md5_string 0 32
   }
 ;;
 
