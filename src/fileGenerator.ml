@@ -36,12 +36,8 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   in
   Tools.refresh_status file_path s 0 "file";
   while !current_size < s do
-    let buffer = Bytes.create (512*buf_size)
-    and s_used = min (s - !current_size) 512 in
-    for i = 0 to (s_used - 1) do
-      let tmp_buf = get_bytes_random buf_size in
-      Bytes.blit tmp_buf 0 buffer (i*buf_size) buf_size
-    done;
+    let s_used = min (s - !current_size) 2048 in
+    let buffer = get_bytes_random (s_used*buf_size) in
     current_size := !current_size + s_used;
     (* output to the file and the md5 channel to md5sum process *)
     output oc buffer 0 (s_used*buf_size);
