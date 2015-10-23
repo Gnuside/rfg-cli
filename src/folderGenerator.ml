@@ -84,6 +84,10 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
   folder
 ;;
 
+let check folder =
+  iter FileGenerator.check folder
+;;
+
 let rec print_file_t ?level:(level=0) = function
   | Folder(f) -> print_file_t_folder level f
   | RegularFile(f) -> print_file_t_file level f
@@ -97,4 +101,3 @@ and print_file_t_folder level (f:folder_t) =
   List.iter (fun e -> print_file_t ~level:(level+1) e) f.files;
   print_indent (); print_endline "]"
 ;;
-

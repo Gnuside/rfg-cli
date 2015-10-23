@@ -58,12 +58,15 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   }
 ;;
 
+let check (f:regular_file_t) =
+  false
+;;
+
 let print_file_t_file level (f:regular_file_t) =
   let space_level = String.make (level*2) ' ' in
   let print_indent () = print_string space_level in
   print_indent (); print_endline "File";
-  print_indent (); print_endline ("path: " ^ f.filepath);
-  print_indent (); print_endline (Printf.sprintf "size: %d KB" f.size);
-  print_indent (); print_endline ("checksum: " ^ (hex_string f.checksum))
+  print_indent (); print_endline (" path: " ^ f.filepath);
+  print_indent (); print_endline (Printf.sprintf " size: %d KB" f.size);
+  print_indent (); print_endline (" checksum: " ^ (hex_string f.checksum))
 ;;
-
