@@ -38,17 +38,16 @@ let usage_msg =
 Arg.parse args anon_fun usage_msg;;
 
 let check () =
-  (if !folder = "" then
-    failwith "Please specify folder path.");
+  if !folder = "" then
+    failwith "Please specify folder path.";
   let folder_desc = !folder ^ ".bin.desc" in (* FIXME: folder cannot end with / *)
   let folder_desc_ic = open_in_bin folder_desc in
-  let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t) in
-  if FolderGenerator.check folder then
-    print_endline "OK"
-  else
-    print_endline "KO"
-  ;
-  (* print_file_t folder *)
+  let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t)
+  and check_and_show_errors = function
+    | Ok         -> print_endline "OK"
+    | Errors(es) -> let show_error e = print_endline ("KO " ^ e.file.filepath)
+                    in List.iter show_error es
+  in check_and_show_errors (FolderGenerator.check folder)
 ;;
 
 let create () =

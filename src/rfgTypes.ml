@@ -16,6 +16,14 @@ and file_t =
   | Folder of folder_t
 ;;
 
+type check_error_t = {
+  file: regular_file_t
+}
+
+and check_t =
+    Ok
+  | Errors of check_error_t list
+;;
 
 (* Accessors *)
 (** count number of files inside tree (folders are not counted) *)

@@ -85,7 +85,27 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
 ;;
 
 let check folder =
-  fold_left FileGenerator.check true folder
+  let rec check_files = function
+    | Folder(f) ->
+      let check_results = List.map check_files f.files
+      and extract_errors previous = function
+        | Ok         -> previous
+        | Errors(es) ->
+            begin match es, previous with
+              | [], _         -> previous
+              | es, Ok        -> Errors(es)
+              | es, Errors(p) -> Errors(p @ es)
+            end
+      in List.fold_left extract_errors Ok check_results
+    | RegularFile(f) ->
+      if FileGenerator.check f then
+        Ok
+      else
+        Errors [{
+          file = f;
+        }]
+      ;
+  in check_files folder
 ;;
 
 let rec print_file_t ?level:(level=0) = function
