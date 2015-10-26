@@ -31,7 +31,7 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   and file_path = (p ^ "/" ^ fn) in
   let current_size = ref 0
   and oc = open_out_bin file_path
-  and (md5_ic, md5_oc) = Unix.open_process "md5sum"
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum -b"
   and s = match size with None -> get_random mis (max 1 (mas-mis)) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
@@ -59,7 +59,13 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
 ;;
 
 let check (f:regular_file_t) =
-  false
+  let md5_string = (f.checksum ^ "  " ^ f.filepath) (* Two spaces needed *)
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum --status --strict --quiet -c -" in
+  output md5_oc md5_string 0 (String.length md5_string) ;
+  let status = Unix.close_process (md5_ic, md5_oc) in
+  match status with
+  | Unix.WEXITED(0) -> true
+  | _ -> false
 ;;
 
 let print_file_t_file level (f:regular_file_t) =
