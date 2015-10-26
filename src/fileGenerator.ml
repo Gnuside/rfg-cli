@@ -60,12 +60,13 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
 
 let check (f:regular_file_t) =
   let md5_string = (f.checksum ^ "  " ^ f.filepath) (* Two spaces needed *)
-  and (md5_ic, md5_oc) = Unix.open_process "md5sum --status --strict --quiet -c -" in
-  output md5_oc md5_string 0 (String.length md5_string) ;
-  let status = Unix.close_process (md5_ic, md5_oc) in
-  match status with
-  | Unix.WEXITED(0) -> true
-  | _ -> false
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum --status --strict -c -" in
+  output_string md5_oc md5_string;
+  flush md5_oc;
+  let convert_status = function
+    | Unix.WEXITED(0) -> true
+    | _               -> false
+  in convert_status (Unix.close_process (md5_ic, md5_oc))
 ;;
 
 let print_file_t_file level (f:regular_file_t) =
