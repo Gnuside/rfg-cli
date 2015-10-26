@@ -31,14 +31,12 @@ and space_used = function
 and path = function
   | Folder(f) -> f.folderpath
   | RegularFile(f) -> f.filepath
-(** iterate through files *)
+(** iterate through files, and apply fct to each file *)
 and iter fct = function
   | Folder(f) -> List.iter (fun e -> iter fct e) f.files
   | RegularFile(f) -> fct f
+(** Fold left on files *)
 and fold_left fct initial = function
-  | Folder(f) -> List.fold_left (fun a e -> fold_left fct a e) initial f.files
-  | RegularFile(f) -> fct f
-and map fct = function
-  | Folder(f) -> List.map (fun e -> map fct e) f.files
+  | Folder(f) -> List.fold_left (fun a e -> fold_left fct a e) initial f.files
   | RegularFile(f) -> fct f
 ;;
