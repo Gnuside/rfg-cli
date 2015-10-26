@@ -85,7 +85,7 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
 ;;
 
 let check folder =
-  iter FileGenerator.check folder
+  fold_left FileGenerator.check true folder
 ;;
 
 let rec print_file_t ?level:(level=0) = function
