@@ -58,6 +58,9 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   }
 ;;
 
+(** Check a file integrity by compare its checksum to the checksum in the file
+ * parameter. The file is opened by an external process (md5sum command).
+ *)
 let check (f:regular_file_t) =
   let md5_string = (f.checksum ^ "  " ^ f.filepath) (* Two spaces needed *)
   and (md5_ic, md5_oc) = Unix.open_process "md5sum --status --strict -c -" in

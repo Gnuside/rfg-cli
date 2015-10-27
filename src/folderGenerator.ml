@@ -84,6 +84,9 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
   folder
 ;;
 
+(** Check files inside the folder recursively.
+ * Returns Ok if no error, or a list of files with errors.
+ *)
 let check folder =
   let rec check_files = function
     | Folder(f) ->
