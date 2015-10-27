@@ -41,6 +41,15 @@ let check () =
   if !folder = "" then
     failwith "Please specify folder path.";
   let folder_desc = !folder ^ ".bin.desc" in (* FIXME: folder cannot end with / *)
+  let folder_desc_checksum = !folder ^ ".checksum" in (* FIXME: folder cannot end with / *)
+  let folder_desc_checksum_ic = open_in folder_desc_checksum in
+  let folder_desc_checksum_line = input_line folder_desc_checksum_ic
+  and folder_desc_actual_checksum = FolderGenerator.checksum_resume_string folder_desc in
+  if folder_desc_checksum_line <> folder_desc_actual_checksum then begin (* FIXME: does not work if the file path is different (with ./ at the beginning for example) *)
+    print_endline folder_desc_checksum_line;
+    print_endline folder_desc_actual_checksum;
+    failwith (folder_desc ^ " and " ^ folder_desc_checksum ^ " does not match.")
+  end;
   let folder_desc_ic = open_in_bin folder_desc in
   let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t)
   and check_and_show_errors = function
@@ -60,15 +69,8 @@ let create () =
   let folder = FolderGenerator.create ~min_size:!file_min_size ~max_files:!number_of_files ~max_amount ~max_size:!file_max_size () in
   let folder_description = (RfgTypes.path folder) ^ ".bin.desc"
   and checksum_resume = (RfgTypes.path folder) ^ ".checksum" in
-  let fd_o = open_out_bin folder_description
-  and cr_o = open_out checksum_resume in
-  Marshal.to_channel fd_o folder [Marshal.No_sharing];
-  close_out fd_o;
-  output_string cr_o (Printf.sprintf "%s: %s"
-    folder_description
-    (Tools.hex_string (Digest.file folder_description))
-  );
-  close_out cr_o
+  FolderGenerator.serialize_folder_description folder_description folder;
+  FolderGenerator.create_checksum_resume checksum_resume folder_description
 ;;
 
 let _ =

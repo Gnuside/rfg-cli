@@ -111,6 +111,23 @@ let check folder =
   in check_files folder
 ;;
 
+let checksum_resume_string folder_description =
+  (Printf.sprintf "%s: %s" folder_description
+    (Tools.hex_string (Digest.file folder_description)))
+;;
+
+let create_checksum_resume path folder_description =
+  let cr_o = open_out path in
+  output_string cr_o (checksum_resume_string folder_description);
+  close_out cr_o
+;;
+
+let serialize_folder_description path (folder:file_t) =
+  let fd_o = open_out_bin path in
+  Marshal.to_channel fd_o folder [Marshal.No_sharing];
+  close_out fd_o
+;;
+
 let rec print_file_t ?level:(level=0) = function
   | Folder(f) -> print_file_t_folder level f
   | RegularFile(f) -> print_file_t_file level f
