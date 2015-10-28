@@ -14,7 +14,7 @@ ones. For that when we generate them we save the size and md5sum of each
 generated files along with their path. It is then after possible to run a
 `check` command and verify the integrity.
 
-This was originaly concieved to check that data backup system was resilient to
+This was originally conceived to check that data backup system was resilient to
 disc failure.
 
 This then allow you to create TB of randomly generated data and check their
@@ -22,12 +22,12 @@ safety when simulating disc failures.
 
 ## Compiling and Language
 
-The language used is ocaml 4.02 and uses ocamlbuild for building.
+The language used is OCaml 4.02 and uses ocamlbuild for building.
 
-Once the repository downloaded you need the following dependancies from opam :
+Once the repository downloaded you need the following dependencies from OPAM :
 > opam install base64 hex ocamlfind
 
-The other dependancies are standard packages of ocaml (threads and unix).
+The other dependencies are standard packages of OCaml (threads and unix).
 
 ### Compile
 
