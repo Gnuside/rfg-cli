@@ -20,6 +20,10 @@ disc failure.
 This then allow you to create TB of randomly generated data and check their
 safety when simulating disc failures.
 
+## System dependencies
+
+rfg uses `md5sum` program to create checksums.
+
 ## Compiling and Language
 
 The language used is OCaml 4.02 and uses ocamlbuild for building.
