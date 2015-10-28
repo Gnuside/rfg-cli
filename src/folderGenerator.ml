@@ -111,6 +111,27 @@ let check folder =
   in check_files folder
 ;;
 
+(** Check files inside the folder recursively. Break at the first error.
+ * Returns Ok if no error, or the file with error
+ *)
+let check_and_break folder =
+  let rec check_files = function
+    | Folder(f) ->
+      let check_or_not previous file = match previous with
+        | Errors(_) -> previous (* There was an error, do not check file *)
+        | Ok        -> check_files file
+      in List.fold_left check_or_not Ok f.files
+    | RegularFile(f) ->
+      if FileGenerator.check f then
+        Ok
+      else
+        Errors [{
+          file = f;
+        }]
+      ;
+  in check_files folder
+;;
+
 let checksum_resume_string folder_description =
   (Printf.sprintf "%s: %s" folder_description
     (Tools.hex_string (Digest.file folder_description)))

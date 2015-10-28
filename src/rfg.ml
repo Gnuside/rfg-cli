@@ -13,6 +13,7 @@ and amount_of_data = ref (1024)
 and number_of_files = ref 1000
 and folder = ref ""
 and command = ref ""
+and check_break = ref false
 ;;
 
 let args = [
@@ -21,6 +22,7 @@ let args = [
   ("--max-file-size", Set_int(file_max_size), "Set the maximum file size in KB (by default 500 KB).");
   ("--amount-data", Set_int(amount_of_data), "Set the maximum space used by the generator in MB (by default 1 GB).");
   ("--folder", Set_string(folder), "Set folder path to analyse with check command");
+  ("--break", Clear(check_break), "Break at the first error with check command");
   ("--seed", Int(fun s -> seed := Some(s)), "Set initial seed for Random function (by default use /dev/urandom if available).");
 ];;
 
@@ -50,15 +52,19 @@ let check () =
   if folder_desc_checksum_line <> folder_desc_actual_checksum then begin (* FIXME: does not work if the file path is different (with ./ at the beginning for example) *)
     print_endline folder_desc_checksum_line;
     print_endline folder_desc_actual_checksum;
-    failwith (folder_desc ^ " and " ^ folder_desc_checksum ^ " does not match.")
-  end;
-  let folder_desc_ic = open_in_bin folder_desc in
-  let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t)
-  and check_and_show_errors = function
-    | Ok         -> print_endline "OK"
-    | Errors(es) -> let show_error e = print_endline ("KO " ^ e.file.filepath)
-                    in List.iter show_error es
-  in check_and_show_errors (FolderGenerator.check folder)
+    print_endline (folder_desc ^ " and " ^ folder_desc_checksum ^ " does not match.");
+    exit 1
+  end else begin
+    let folder_desc_ic = open_in_bin folder_desc in
+    let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t)
+    and check_and_show_errors = function
+      | Ok         -> print_endline "OK"
+      | Errors(es) -> let show_error e = print_endline ("KO " ^ e.file.filepath)
+                      in List.iter show_error es ; exit 1
+    in check_and_show_errors (if !check_break then
+        FolderGenerator.check_and_break folder
+        else FolderGenerator.check folder)
+  end
 ;;
 
 let create () =
