@@ -117,6 +117,7 @@ let check folder =
         treated_size := !treated_size + f.size;
         (Printf.printf "\rChecking... Number of files done: %d/%d files ; Amount of data checked: %d KB / %d KB"
           !treated_files total_n_files !treated_size total_size);
+        Pervasives.flush stdout;
         res
       ;
   in check_files folder
