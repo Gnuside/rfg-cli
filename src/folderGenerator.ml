@@ -88,6 +88,11 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
  * Returns Ok if no error, or a list of files with errors.
  *)
 let check folder =
+  let total_n_files = count_files folder
+  and total_size = space_used folder
+  and treated_files = ref 0
+  and treated_size = ref 0
+  in
   let rec check_files = function
     | Folder(f) ->
       let check_results = List.map check_files f.files
@@ -101,12 +106,18 @@ let check folder =
             end
       in List.fold_left extract_errors Ok check_results
     | RegularFile(f) ->
-      if FileGenerator.check f then
-        Ok
-      else
-        Errors [{
-          file = f;
-        }]
+        let res = if FileGenerator.check f then
+          Ok
+        else
+          Errors [{
+            file = f;
+          }]
+        in
+        incr treated_files;
+        treated_size := !treated_size + f.size;
+        (Printf.printf "\rChecking... Number of files done: %d/%d files ; Amount of data checked: %d KB / %d KB"
+          !treated_files total_n_files !treated_size total_size);
+        res
       ;
   in check_files folder
 ;;
