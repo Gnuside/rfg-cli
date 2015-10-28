@@ -93,6 +93,10 @@ let check folder =
   and treated_files = ref 0
   and treated_size = ref 0
   in
+  (* First print out *)
+  Printf.printf "\rChecking... Number of files done: %d/%d files ; Amount of data checked: %d KB / %d KB"
+    !treated_files total_n_files !treated_size total_size;
+  Pervasives.flush stdout;
   let rec check_files = function
     | Folder(f) ->
       let check_results = List.map check_files f.files
