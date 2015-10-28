@@ -16,6 +16,14 @@ and file_t =
   | Folder of folder_t
 ;;
 
+type check_error_t = {
+  file: regular_file_t
+}
+
+and check_t =
+    Ok
+  | Errors of check_error_t list
+;;
 
 (* Accessors *)
 (** count number of files inside tree (folders are not counted) *)
@@ -31,4 +39,12 @@ and space_used = function
 and path = function
   | Folder(f) -> f.folderpath
   | RegularFile(f) -> f.filepath
+(** iterate through files, and apply fct to each file *)
+and iter fct = function
+  | Folder(f) -> List.iter (fun e -> iter fct e) f.files
+  | RegularFile(f) -> fct f
+(** Fold left on files *)
+and fold_left fct initial = function
+  | Folder(f) -> List.fold_left (fun a e -> fold_left fct a e) initial f.files
+  | RegularFile(f) -> fct f
 ;;

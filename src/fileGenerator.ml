@@ -31,7 +31,7 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   and file_path = (p ^ "/" ^ fn) in
   let current_size = ref 0
   and oc = open_out_bin file_path
-  and (md5_ic, md5_oc) = Unix.open_process "md5sum"
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum -b"
   and s = match size with None -> get_random mis (max 1 (mas-mis)) | Some(s) -> s
   in
   Tools.refresh_status file_path s 0 "file";
@@ -58,12 +58,25 @@ let create ?min_size:(mis=5) ?max_size:(mas=5242880) ?size ?filename:(fn=new_nam
   }
 ;;
 
+(** Check a file integrity by compare its checksum to the checksum in the file
+ * parameter. The file is opened by an external process (md5sum command).
+ *)
+let check (f:regular_file_t) =
+  let md5_string = (f.checksum ^ "  " ^ f.filepath) (* Two spaces needed *)
+  and (md5_ic, md5_oc) = Unix.open_process "md5sum --status --strict -c -" in
+  output_string md5_oc md5_string;
+  flush md5_oc;
+  let convert_status = function
+    | Unix.WEXITED(0) -> true
+    | _               -> false
+  in convert_status (Unix.close_process (md5_ic, md5_oc))
+;;
+
 let print_file_t_file level (f:regular_file_t) =
   let space_level = String.make (level*2) ' ' in
   let print_indent () = print_string space_level in
   print_indent (); print_endline "File";
-  print_indent (); print_endline ("path: " ^ f.filepath);
-  print_indent (); print_endline (Printf.sprintf "size: %d KB" f.size);
-  print_indent (); print_endline ("checksum: " ^ (hex_string f.checksum))
+  print_indent (); print_endline (" path: " ^ f.filepath);
+  print_indent (); print_endline (Printf.sprintf " size: %d KB" f.size);
+  print_indent (); print_endline (" checksum: " ^ (hex_string f.checksum))
 ;;
-

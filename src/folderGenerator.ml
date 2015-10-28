@@ -84,6 +84,67 @@ let rec create ?(depth=0) ?min_files:(mif=2) ?max_files:(maf=50) ?(min_size=3) ?
   folder
 ;;
 
+(** Check files inside the folder recursively.
+ * Returns Ok if no error, or a list of files with errors.
+ *)
+let check folder =
+  let rec check_files = function
+    | Folder(f) ->
+      let check_results = List.map check_files f.files
+      and extract_errors previous = function
+        | Ok         -> previous
+        | Errors(es) ->
+            begin match es, previous with
+              | [], _         -> previous
+              | es, Ok        -> Errors(es)
+              | es, Errors(p) -> Errors(p @ es)
+            end
+      in List.fold_left extract_errors Ok check_results
+    | RegularFile(f) ->
+      if FileGenerator.check f then
+        Ok
+      else
+        Errors [{
+          file = f;
+        }]
+      ;
+  in check_files folder
+;;
+
+(** Check files inside the folder recursively. Break at the first error.
+ * Returns Ok if no error, or the file with error
+ *)
+let check_and_break folder =
+  let rec check_files = function
+    | Folder(f) ->
+      let check_or_not previous file = match previous with
+        | Errors(_) -> previous (* There was an error, do not check file *)
+        | Ok        -> check_files file
+      in List.fold_left check_or_not Ok f.files
+    | RegularFile(f) ->
+      if FileGenerator.check f then
+        Ok
+      else
+        Errors [{
+          file = f;
+        }]
+      ;
+  in check_files folder
+;;
+
+let create_checksum_resume path folder_description =
+  let cr_o = open_out path
+  in output_string cr_o (Printf.sprintf "%s: %s" folder_description
+    (Tools.checksum folder_description));
+  close_out cr_o
+;;
+
+let serialize_folder_description path (folder:file_t) =
+  let fd_o = open_out_bin path in
+  Marshal.to_channel fd_o folder [Marshal.No_sharing];
+  close_out fd_o
+;;
+
 let rec print_file_t ?level:(level=0) = function
   | Folder(f) -> print_file_t_folder level f
   | RegularFile(f) -> print_file_t_file level f
@@ -97,4 +158,3 @@ and print_file_t_folder level (f:folder_t) =
   List.iter (fun e -> print_file_t ~level:(level+1) e) f.files;
   print_indent (); print_endline "]"
 ;;
-
