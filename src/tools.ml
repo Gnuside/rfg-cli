@@ -6,6 +6,7 @@
 let random_ic = (*if Sys.file_exists "/dev/urandom" then Some(open_in_bin "/dev/urandom") else *)None;;
 
 open B64
+open Filename
 
 (** Get a base64 random string *)
 let random_b64_string l =
@@ -167,3 +168,9 @@ let init_status mf ma file_max_size =
   thread := Thread.create refresh_thread ()
 ;;
 
+let remove_trailing_slash str =
+  if check_suffix str dir_sep then
+    chop_suffix str dir_sep
+  else
+    str
+;;

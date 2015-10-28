@@ -2,6 +2,7 @@ open Random
 open Arg
 open RfgTypes
 open FolderGenerator
+open Tools
 
 let version = "0.9.0";;
 
@@ -40,8 +41,9 @@ Arg.parse args anon_fun usage_msg;;
 let check () =
   if !folder = "" then
     failwith "Please specify folder path.";
-  let folder_desc = !folder ^ ".bin.desc" in (* FIXME: folder cannot end with / *)
-  let folder_desc_checksum = !folder ^ ".checksum" in (* FIXME: folder cannot end with / *)
+  let folder_clean = remove_trailing_slash !folder in
+  let folder_desc = folder_clean ^ ".bin.desc" in
+  let folder_desc_checksum = folder_clean ^ ".checksum" in
   let folder_desc_checksum_ic = open_in folder_desc_checksum in
   let folder_desc_checksum_line = input_line folder_desc_checksum_ic
   and folder_desc_actual_checksum = FolderGenerator.checksum_resume_string folder_desc in
