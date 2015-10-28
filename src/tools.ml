@@ -174,3 +174,7 @@ let remove_trailing_slash str =
   else
     str
 ;;
+
+let checksum str =
+  hex_string (Digest.file str)
+;;

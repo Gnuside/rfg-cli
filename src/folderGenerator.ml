@@ -132,14 +132,10 @@ let check_and_break folder =
   in check_files folder
 ;;
 
-let checksum_resume_string folder_description =
-  (Printf.sprintf "%s: %s" folder_description
-    (Tools.hex_string (Digest.file folder_description)))
-;;
-
 let create_checksum_resume path folder_description =
-  let cr_o = open_out path in
-  output_string cr_o (checksum_resume_string folder_description);
+  let cr_o = open_out path
+  in output_string cr_o (Printf.sprintf "%s: %s" folder_description
+    (Tools.checksum folder_description));
   close_out cr_o
 ;;
 

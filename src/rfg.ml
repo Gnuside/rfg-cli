@@ -44,14 +44,15 @@ let check () =
   if !folder = "" then
     failwith "Please specify folder path.";
   let folder_clean = remove_trailing_slash !folder in
-  let folder_desc = folder_clean ^ ".bin.desc" in
-  let folder_desc_checksum = folder_clean ^ ".checksum" in
-  let folder_desc_checksum_ic = open_in folder_desc_checksum in
-  let folder_desc_checksum_line = input_line folder_desc_checksum_ic
-  and folder_desc_actual_checksum = FolderGenerator.checksum_resume_string folder_desc in
-  if folder_desc_checksum_line <> folder_desc_actual_checksum then begin (* FIXME: does not work if the file path is different (with ./ at the beginning for example) *)
-    print_endline folder_desc_checksum_line;
-    print_endline folder_desc_actual_checksum;
+  let folder_desc = folder_clean ^ ".bin.desc"
+  and folder_desc_checksum = folder_clean ^ ".checksum" in
+  let folder_desc_checksum_ic = open_in folder_desc_checksum
+  and extract_checksum str =
+    String.sub str (String.length str - 32) 32
+  in
+  let folder_desc_checksum_line = extract_checksum (input_line folder_desc_checksum_ic)
+  and folder_desc_actual_checksum = Tools.checksum folder_desc in
+  if folder_desc_checksum_line <> folder_desc_actual_checksum then begin
     print_endline (folder_desc ^ " and " ^ folder_desc_checksum ^ " does not match.");
     exit 1
   end else begin
