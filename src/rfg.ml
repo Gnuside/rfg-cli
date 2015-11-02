@@ -59,8 +59,9 @@ let check () =
     let folder_desc_ic = open_in_bin folder_desc in
     let folder = (Marshal.from_channel folder_desc_ic : RfgTypes.file_t)
     and check_and_show_errors = function
-      | Ok         -> print_endline "OK"
-      | Errors(es) -> let show_error e = print_endline ("KO " ^ e.file.filepath)
+      | Ok         -> print_endline "" ; print_endline "OK"
+      | Errors(es) -> print_endline "" ;
+                      let show_error e = print_endline ("KO " ^ e.file.filepath)
                       in List.iter show_error es ; exit 1
     in check_and_show_errors (if !check_break then
         FolderGenerator.check_and_break folder
